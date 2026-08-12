@@ -1,0 +1,11 @@
+DEFECT 1 - arithmetic expression inside ADD
+RENEWAL-02-CURRENT-ASIS.cob is module5_alienmoon/cobol/current.cob, verbatim.
+
+### compile
+/lab/02_cobol/RENEWAL-02-CURRENT-ASIS.cob: in paragraph 'CALC-PREM':
+/lab/02_cobol/RENEWAL-02-CURRENT-ASIS.cob:33: error: syntax error, unexpected *, expecting GIVING
+compile exit=1
+
+ADD ... TO takes operands, not expressions. This program never runs,
+and that is the finding: module5 shipped code that was never compiled.
+The portable fix is COMPUTE NEW-PREM = NEW-PREM + (CLAIMS * 50).

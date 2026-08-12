@@ -1,0 +1,31 @@
+---
+description: Instructor coursework is evidence and must not be edited
+alwaysApply: true
+---
+
+# Do not edit the instructor's files
+
+The `module1_PROLOG/` through `module5_alienmoon/` trees are submitted
+coursework. Two of their files contain the defects this lab exists to
+document, so editing them destroys the evidence and the assignment at once.
+
+Treat them as read-only. All work goes in `lab/`.
+
+To study a defective program, transcribe it into `lab/02_cobol/` under a new
+name and change one thing at a time, so each captured artifact isolates a
+single variable.
+
+## Never write outside this repository
+
+A parallel session owns the Obsidian vault at
+`Remote_Sync_V.01/Spaces/Work/.../COBOL & Legacy Systems/`, including a
+gitignored viewing copy of this repo at `COBOL & Legacy Systems/COBOL-main/`.
+
+Vault files are read-only reference. Read them to learn what evidence is
+needed; hand results back as files under `lab/03_forensics/`. Writing to the
+vault from here causes the two sessions to collide.
+
+## Claims must cite captured output
+
+Do not state a figure in a write-up that no artifact backs. Add it to
+`make verify` so prose and evidence cannot drift apart.

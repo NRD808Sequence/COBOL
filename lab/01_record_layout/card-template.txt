@@ -1,0 +1,54 @@
+IBM 5081 / 80-COLUMN CARD TEMPLATE
+==================================
+
+COLUMN RULER
+                  1         2         3         4         5         6         7         8
+         1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+COBOL SOURCE CARD AREAS (columns 1-80)
+         SSSSSSCAAAABBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBIIIIIIII
+
+         S = 1-6   Sequence number. Ignored by the compiler; the deck's page number.
+                   Its real job was physical: drop the deck, sort it back by these.
+         C = 7     Indicator. '*' comment, '-' continuation, '/' page eject, blank code.
+         A = 8-11  Area A. DIVISION, SECTION, paragraph names, FD, and 01 level numbers.
+         B = 12-72 Area B. Everything else: statements, subordinate level numbers.
+         I = 73-80 Identification. Program name. Also ignored by the compiler.
+
+         Nothing past column 72 is compiled. A statement that drifts to column 73
+         is not an error you will be told about -- it is simply gone.
+
+POLICY RECORD LAYOUT (columns 1-20, the canonical 20-byte layout)
+         1234567890123456789012
+         PPPPPPSSAAVCCBBBBBBB
+
+         P = 1-6   POL-NUM    PIC 9(6)     policy number
+         S = 7-8   STATE      PIC XX       two-letter state code
+         A = 9-10  AGE        PIC 9(2)     insured age
+         V = 11    VEHICLE    PIC X        S sedan, P sports, T truck
+         C = 12-13 CLAIMS     PIC 9(2)     prior claims count
+         B = 14-20 BASE-PREM  PIC 9(5)V99  base premium, implied decimal
+
+         The V in 9(5)V99 is an IMPLIED decimal point. It occupies no column.
+         $450.00 is punched 0045000, not 450.00 and not 00450.00.
+         Punching an actual '.' shifts every column after it and silently
+         corrupts the field, because a '.' read into a PIC 9 field is not a digit.
+
+WORKED ENCODING
+         Policy 100004, Texas, age 58, sedan, 3 prior claims, base premium $750.00
+
+         100004TX58S030075000
+         |     |  | | | |
+         |     |  | | | +-- 14-20 base premium 0075000 = 00750.00
+         |     |  | | +---- 12-13 claims      03
+         |     |  | +------ 11    vehicle     S
+         |     |  +-------- 9-10  age         58
+         |     +----------- 7-8   state       TX
+         +----------------- 1-6   policy      100004
+
+         Expected renewal: 750.00 + 25.00 (age > 50) + 150.00 (3 claims) = 925.00
+
+THE ONE-COLUMN QUESTION
+         Shift the base premium field one column left and 0075000 is read from
+         columns 13-19 instead of 14-20. The claims digit becomes the premium's
+         high-order digit. The program does not fail. It bills a different number.

@@ -1,0 +1,26 @@
+DEFECT 4 - narrowed PICTURE clause on a high-value policy
+One policy, base premium $12,000.00, age 45, no claims.
+
+### RENEWAL-04-CORRECT   BASE-PREM PIC 9(5)V99, 20-byte record
+100008  12000.00
+RECORDS 0001 TOTAL    12000.00
+run exit=0
+
+### RENEWAL-05-NARROW    BASE-PREM PIC 9(4)V99, 19-byte record
+compile exit=0
+100008   1200.00
+000008   1200.00
+RECORDS 0002 TOTAL     2400.00
+run exit=0
+
+Identical programs but for the PICTURE width module5 narrowed.
+Two things go wrong at once, and neither raises a diagnostic.
+
+First, the premium is read from a 6-column window instead of 7, so
+the implied decimal lands one place left: 12000.00 becomes 1200.00,
+an order of magnitude under-billed.
+
+Second, the narrower field shortens the whole record from 20 bytes
+to 19. The deck is still 20 bytes long, so the leftover byte becomes
+the start of a second record. The batch invents policy 000008, which
+does not exist, and bills it. One input card, two output bills.

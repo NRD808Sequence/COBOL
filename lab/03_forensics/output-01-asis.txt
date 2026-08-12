@@ -1,0 +1,15 @@
+DEFECT 2 - OPEN INPUT inside the loop target
+RENEWAL-01-ASIS.cob is module4_LISP/lab2/cobol/cobol1.cob, verbatim.
+
+### compile
+compile exit=0
+
+### run against the authentic 120-byte card image
+100001000450.00
+libcob: error: file already open (status = 41) for file POLICY-FILE ('POLICY_DAT' => POLICY.DAT)
+libcob: warning: implicit CLOSE of POLICY-FILE ('POLICY.DAT')
+run exit=1
+
+GO TO MAIN-LOOP re-enters the paragraph holding OPEN INPUT, so the
+second iteration re-opens an already-open file. One record is billed
+out of six. The program cannot process a deck at all.

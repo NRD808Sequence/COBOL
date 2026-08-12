@@ -1,0 +1,7 @@
+.DS_Store
+
+# Compiled COBOL binaries. Everything the lab builds is reproducible with
+# `make forensics`; only the captured text evidence is committed.
+lab/**/*.o
+lab/**/BILLING.RPT
+lab/**/*.CARD

@@ -1,0 +1,14 @@
+WORKED EXAMPLE - base $1,000.00, age 60, 2 claims
+The single policy cited in the vault's Bug Diff Analysis.
+
+### buggy (RENEWAL-03-LOOPFIX)
+100007000100.00
+libcob: warning: implicit CLOSE of POLICY-FILE ('POLICY.DAT')
+run exit=0
+
+### correct (RENEWAL-04-CORRECT)
+100007   1125.00
+RECORDS 0001 TOTAL     1125.00
+run exit=0
+
+Intended 1000.00 + 25.00 + 100.00 = 1125.00. Buggy 2 * 50 = 100.00.

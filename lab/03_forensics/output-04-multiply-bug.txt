@@ -1,0 +1,36 @@
+DEFECT 3 - MULTIPLY ... GIVING overwrites the accumulator
+Both runs use the authentic card image, so only the arithmetic differs.
+
+### RENEWAL-03-LOOPFIX (MULTIPLY CLAIMS BY 50 GIVING NEW-PREM)
+100001000450.00
+100002000545.00
+100003000100.00
+100004000150.00
+100005000050.00
+100006000200.00
+libcob: warning: implicit CLOSE of POLICY-FILE ('POLICY.DAT')
+run exit=0
+harness-computed batch total: 1495.00
+
+### RENEWAL-04-CORRECT (COMPUTE NEW-PREM = NEW-PREM + (CLAIMS * 50))
+compile exit=0
+100001    450.00
+100002    545.00
+100003    700.00
+100004    925.00
+100005    430.00
+100006   1125.00
+RECORDS 0006 TOTAL     4175.00
+run exit=0
+harness-computed batch total: 4175.00
+--- BILLING.RPT (folded to the 60-column print line) ---
+POLICY  100001  PREMIUM    450.00                           
+POLICY  100002  PREMIUM    545.00                           
+POLICY  100003  PREMIUM    700.00                           
+POLICY  100004  PREMIUM    925.00                           
+POLICY  100005  PREMIUM    430.00                           
+POLICY  100006  PREMIUM   1125.00                           
+GIVING assigns. It discards the base premium and the age surcharge
+computed on the two lines above it. Note policies 100001 and 100002:
+identical under both programs, because both are claim-free. The
+defect is invisible on every policy that had no claims that year.

@@ -1,0 +1,20 @@
+Toolchain provenance. Values here are EXPECTED to differ between the
+macOS and Proxmox captures; the output-*.txt files are not.
+
+captured-by : capture.sh
+capture host: macos-docker
+container id: 4d623a4da0b7
+kernel      : Linux 6.12.76-linuxkit aarch64
+base image  : debian:bookworm-slim
+base digest : sha256:abd67ffcfa541b485a3dff59865ab629aa048a6c613e639d36e7456b0b229241
+cobc flags  : -x -std=cobol85 -Wall
+
+cobc (GnuCOBOL) 3.1.2.0
+Copyright (C) 2020 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+Written by Keisuke Nishida, Roger While, Ron Norman, Simon Sobisch, Edward Hart
+Built     Sep 19 2022 00:26:12
+Packaged  Dec 23 2020 12:04:58 UTC
+C version "12.2.0"

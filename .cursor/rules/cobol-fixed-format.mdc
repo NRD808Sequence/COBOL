@@ -1,0 +1,54 @@
+---
+description: Fixed-format column discipline for COBOL source in this repo
+globs: **/*.cob
+alwaysApply: false
+---
+
+# Fixed-format COBOL, not free-format
+
+Every `.cob` file here is compiled with `cobc -x -std=cobol85`, which reads
+fixed format. Column position is syntax. Getting it wrong is the subject of
+the course, so do not emit free-format COBOL.
+
+| Columns | Contents |
+|---|---|
+| 1-6 | Sequence number, ascending in hundreds (`000100`, `000200`) |
+| 7 | Indicator: `*` comment, `-` continuation, blank for code |
+| 8-11 | Area A: `DIVISION`, `SECTION`, paragraph names, `FD`, `01` levels |
+| 12-72 | Area B: statements, and level numbers `02`-`49` |
+| 73-80 | Identification, ignored by the compiler |
+
+Nothing past column 72 is compiled, and drifting past it is silent.
+
+```cobol
+000100 IDENTIFICATION DIVISION.
+000900 FD POLICY-FILE.
+001000 01 POLICY-REC.
+001100     05 POL-NUM       PIC 9(6).
+002000 MAIN-PARA.
+002100     OPEN INPUT POLICY-FILE.
+```
+
+`FD` and `01` start in column 8. `05` and all statements start in column 12.
+
+## Arithmetic
+
+`ADD` and `MULTIPLY` take operands, not expressions, and `GIVING` assigns
+rather than accumulates. To add to a running total, use `COMPUTE`.
+
+```cobol
+      * wrong: will not compile
+003300     ADD CLAIMS * 50 TO NEW-PREM.
+      * wrong: silently discards whatever NEW-PREM already held
+003300     MULTIPLY CLAIMS BY 50 GIVING NEW-PREM.
+      * right
+003300     COMPUTE NEW-PREM = NEW-PREM + (CLAIMS * 50).
+```
+
+## File organization
+
+Input decks are card images: fixed-length records with no line delimiters.
+Leave `SELECT` statements without an `ORGANIZATION` clause so reads stay
+record sequential. `LINE SEQUENTIAL` is a post-1985 extension and reading a
+newline-delimited file as record sequential shifts every record after the
+first one column left.

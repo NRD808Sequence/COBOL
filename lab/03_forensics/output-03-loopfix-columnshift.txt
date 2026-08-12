@@ -1,0 +1,38 @@
+THE ONE-COLUMN QUESTION - record sequential vs. a newline-delimited file
+Same binary, same logic, two physical file formats.
+
+### compile
+compile exit=0
+
+### run A: authentic card image, 120 bytes, no delimiters
+100001000450.00
+100002000545.00
+100003000100.00
+100004000150.00
+100005000050.00
+100006000200.00
+libcob: warning: implicit CLOSE of POLICY-FILE ('POLICY.DAT')
+run exit=0
+
+### run B: the same six records with newlines, 126 bytes
+100001000450.00
+
+10000017500.00
+0
+1000002300.00
+00
+100002900.00
+000
+10014100.00
+8000
+1016700.00
+90000
+016700.00
+libcob: warning: implicit CLOSE of POLICY-FILE ('POLICY.DAT')
+run exit=0
+
+The FD declares a 20-byte record and the SELECT has no ORGANIZATION
+clause, so reads are record sequential: fixed 20-byte slices with no
+notion of a line. Record 1 lands correctly. Record 2 begins on the
+newline byte, and every record after it is shifted one column left.
+The newline is the anachronism, not the COBOL.
