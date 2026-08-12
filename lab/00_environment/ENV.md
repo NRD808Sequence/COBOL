@@ -39,10 +39,13 @@ never produce matching output and "parity" would be unfalsifiable. So:
 - `03_forensics/env-*.txt` — compiler build, kernel, architecture, container
   id. Expected to **differ**.
 
-Parity check, once the Proxmox capture exists:
+Parity check, once the Proxmox capture exists. Compare every `output-*.txt` and
+deliberately leave `env-*.txt` out, since those are expected to differ:
 
 ```sh
-diff 03_forensics/output-04-multiply-bug.txt /path/to/proxmox/output-04-multiply-bug.txt
+for f in 03_forensics/output-*.txt; do
+    diff -q "$f" "/tmp/proxmox-forensics/$(basename "$f")" && echo "match $(basename "$f")"
+done
 ```
 
 ## Captured environments
@@ -60,29 +63,76 @@ Full detail in `../03_forensics/env-macos-docker.txt`.
 
 ### proxmox-debian — not yet captured
 
-These are the four fields Runbook Stage 1 asks for. They are recorded as
-blanks rather than omitted, so the gap is visible:
+#### Access path
+
+Verified 2026-08-12. The dev host and the hypervisor are at **different
+physical sites**, on different subnets behind different public IPs, so
+Tailscale is not a convenience here — it is the only route. Plain LAN SSH is
+not an option.
+
+```
+macbook-pro-2          LXC 102                     pve-node-1         VM 101
+10.0.0.164/24    ──►   tailscale-router       ──►  172.16.25.50  ──►  debian-test
+                       100.89.133.26               hypervisor         guest
+                       advertises 172.16.25.0/24
+```
+
+| | |
+|---|---|
+| Hypervisor | `pve-node-1`, `172.16.25.50`, Debian 13 trixie, pve-manager 9.2.5 |
+| Subnet router | LXC 102 `tailscale-router`, `100.89.133.26`, advertises `172.16.25.0/24` |
+| Route status | Approved and serving — present in Tailscale `PrimaryRoutes`, not merely `AllowedIPs` |
+| Path quality | Direct, not DERP-relayed: ~17ms via `24.8.197.82:41641` |
+| Guest login | user `cobol`, key `id_ed25519_cobol_lab`, `SHA256:b5BD62bL1eqzcwBG763cMaV1h3/Q39iO/nMBkC6s3Zc` |
+
+The subnet router is an LXC container running **on** the Proxmox host, not a
+separate appliance and not the hypervisor itself. Because its route is already
+approved, **no Tailscale ACL or admin-console change is required** — the guest
+becomes reachable as a side effect of the `/24` route the moment it has an
+address on `vmbr0`.
+
+Installing Tailscale on the guest directly would be an upgrade rather than a
+prerequisite: it would make the guest individually ACL-able instead of
+reachable as a side effect of a whole-subnet route, and it would survive the
+LXC router being down.
+
+#### Runbook Stage 1 fields
+
+Blanks left visible rather than omitted, so the gap stays legible:
 
 | Field | Value |
 |---|---|
-| VMID | _not yet recorded_ |
-| Bridge | _not yet recorded_ |
-| IP | _not yet recorded_ |
-| Tailscale hostname | _not yet recorded_ |
+| VMID | `101` (`debian-test`) |
+| Bridge | `vmbr0`, the same bridge as `172.16.25.50/24` |
+| IP | _not yet recorded — guest is powered off_ |
+| Tailscale hostname | _n/a — reached via subnet route, not as a tailnet node_ |
 
-Note on reachability: the tailnet currently carries `macbook-pro-2`,
-`nikolass-mac-mini`, and `tailscale-router`. No Proxmox host or Debian guest
-is on it yet, so the guest needs Tailscale installed on it directly, or the
-existing router node needs to advertise the Proxmox subnet. No ACL change is
-required for this lab; the capture is a local `make` on that guest, and only
-the resulting text files need to come back.
+#### Provisioning the guest
 
-To capture there:
+Nothing on the Proxmox side can run the capture yet. The hypervisor has no
+`docker`, `git`, `make`, or `cobc`, and installing them **there** would defeat
+the experiment: Debian trixie's packaged `cobc` will not match the pinned
+`cobol-lab:3.1.2` image, so a diff would measure toolchain drift instead of
+environment parity. The capture belongs on the guest, in the container.
+
+On the guest:
 
 ```sh
-cd lab
-make forensics CAPTURE_HOST=proxmox-debian
+apt-get update && apt-get install -y docker.io git make rsync openssh-server
+systemctl enable --now docker ssh
 ```
+
+Then from the repo root on the dev host:
+
+```sh
+rsync -az --exclude .git ./ cobol-lab:~/COBOL/
+ssh cobol-lab 'cd ~/COBOL/lab && make forensics CAPTURE_HOST=proxmox-debian'
+rsync -az cobol-lab:~/COBOL/lab/03_forensics/ /tmp/proxmox-forensics/
+```
+
+Artifacts land in `/tmp/proxmox-forensics/` rather than back over
+`03_forensics/`, so the macOS capture survives to be compared against. Then run
+the parity check above.
 
 ## Why `-std=cobol85`
 
