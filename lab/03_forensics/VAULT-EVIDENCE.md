@@ -3,8 +3,10 @@
 Everything the 2026-08-11 handoff asked for, mapped to the checkbox it fills.
 Paths are relative to this directory unless noted.
 
-Captured on `macos-docker`, GnuCOBOL 3.1.2.0, `-x -std=cobol85 -Wall`.
-Proxmox parity capture is still outstanding.
+Captured on `macos-docker` and `proxmox-debian`, GnuCOBOL 3.1.2.0,
+`-x -std=cobol85 -Wall`. All six `output-*.txt` files are byte-identical
+across the two hosts; see `env-macos-docker.txt` and `env-proxmox-debian.txt`
+for the provenance that is allowed to differ.
 
 ## `docs/COBOL Bug Diff Analysis` — "Evidence to generate"
 
@@ -28,7 +30,7 @@ That matches the figure already in the doc, so no restatement is needed.
 | Compile and run both programs, capture console output | `output-01-asis.txt`, `output-02-current-asis.txt` | Done — **neither original runs** |
 | Show the compile error, fix with `COMPUTE` | `output-02-current-asis.txt`, `RENEWAL-04-CORRECT.cob` | Done |
 | Intended-vs-buggy dollar-delta table | `BUG-REPORT.md` | Done |
-| Environment: VMID, bridge, IP, Tailscale hostname | `../00_environment/ENV.md` | **Still blank** — macOS capture only |
+| Environment: VMID, bridge, IP, Tailscale hostname | `../00_environment/ENV.md` | Done — VMID `101`, bridge `vmbr0`, IP `172.16.25.89`, Tailscale hostname n/a (subnet route) |
 
 ## Three corrections for the vault text
 

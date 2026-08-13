@@ -36,11 +36,13 @@ never produce matching output and "parity" would be unfalsifiable. So:
 
 - `03_forensics/output-*.txt` — program behaviour only. Expected to be
   **byte-identical** across environments.
-- `03_forensics/env-*.txt` — compiler build, kernel, architecture, container
-  id. Expected to **differ**.
+- `03_forensics/env-*.txt` — compiler build, kernel, architecture. Expected
+  to **differ**.
 
-Parity check, once the Proxmox capture exists. Compare every `output-*.txt` and
-deliberately leave `env-*.txt` out, since those are expected to differ:
+Parity check, captured 2026-08-12. All six `output-*.txt` files matched
+byte-for-byte between `macos-docker` and `proxmox-debian`. The `env-*.txt`
+files differed in kernel, architecture, and the compiler's `Built` timestamp
+(arch-specific binNMU), which is the split working as designed:
 
 ```sh
 for f in 03_forensics/output-*.txt; do
@@ -61,7 +63,18 @@ done
 
 Full detail in `../03_forensics/env-macos-docker.txt`.
 
-### proxmox-debian — not yet captured
+### proxmox-debian — captured
+
+| | |
+|---|---|
+| Host | Proxmox VM 101 `debian-test`, `172.16.25.89`, user `cobol` (`ssh cobol-lab`) |
+| Kernel in container | Linux 6.12.94+deb13-amd64 x86_64 |
+| Compiler | GnuCOBOL 3.1.2.0, built Sep 19 2022, C version 12.2.0 |
+| Flags | `-x -std=cobol85 -Wall` |
+
+Full detail in `../03_forensics/env-proxmox-debian.txt`. The `Built` line is
+four hours later than the macOS capture because Debian's `3.1.2-5+b1` is an
+arch-specific rebuild; the series assertion in the Dockerfile still holds.
 
 #### Access path
 
@@ -73,8 +86,8 @@ not an option.
 ```
 macbook-pro-2          LXC 102                     pve-node-1         VM 101
 10.0.0.164/24    ──►   tailscale-router       ──►  172.16.25.50  ──►  debian-test
-                       100.89.133.26               hypervisor         guest
-                       advertises 172.16.25.0/24
+                       100.89.133.26               hypervisor         172.16.25.89
+                       advertises 172.16.25.0/24                      ssh cobol-lab
 ```
 
 | | |
@@ -98,31 +111,21 @@ LXC router being down.
 
 #### Runbook Stage 1 fields
 
-Blanks left visible rather than omitted, so the gap stays legible:
-
 | Field | Value |
 |---|---|
 | VMID | `101` (`debian-test`) |
 | Bridge | `vmbr0`, the same bridge as `172.16.25.50/24` |
-| IP | _not yet recorded — guest is powered off_ |
+| IP | `172.16.25.89` (static on `ens18`/`vmbr0`) |
 | Tailscale hostname | _n/a — reached via subnet route, not as a tailnet node_ |
 
-#### Provisioning the guest
+#### Recapture
 
-Nothing on the Proxmox side can run the capture yet. The hypervisor has no
-`docker`, `git`, `make`, or `cobc`, and installing them **there** would defeat
-the experiment: Debian trixie's packaged `cobc` will not match the pinned
-`cobol-lab:3.1.2` image, so a diff would measure toolchain drift instead of
-environment parity. The capture belongs on the guest, in the container.
+The guest is provisioned: Docker 26.1.5, git, make, rsync, user `cobol` in the
+`docker` group, key `id_ed25519_cobol_lab`. The hypervisor still has none of
+those tools, which is correct — Debian trixie's packaged `cobc` would not
+match the pinned `cobol-lab:3.1.2` image.
 
-On the guest:
-
-```sh
-apt-get update && apt-get install -y docker.io git make rsync openssh-server
-systemctl enable --now docker ssh
-```
-
-Then from the repo root on the dev host:
+From the repo root on the dev host:
 
 ```sh
 rsync -az --exclude .git ./ cobol-lab:~/COBOL/
@@ -132,7 +135,8 @@ rsync -az cobol-lab:~/COBOL/lab/03_forensics/ /tmp/proxmox-forensics/
 
 Artifacts land in `/tmp/proxmox-forensics/` rather than back over
 `03_forensics/`, so the macOS capture survives to be compared against. Then run
-the parity check above.
+the parity check above. `env-proxmox-debian.txt` is the one file that should
+be copied back into `03_forensics/` when provenance changes.
 
 ## Why `-std=cobol85`
 
