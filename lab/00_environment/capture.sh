@@ -75,7 +75,6 @@ ENVFILE="$OUT/env-$HOST.txt"
     echo
     echo "captured-by : capture.sh"
     echo "capture host: $HOST"
-    echo "container id: $(hostname)"
     echo "kernel      : $(uname -srm)"
     echo "base image  : debian:bookworm-slim"
     echo "base digest : sha256:abd67ffcfa541b485a3dff59865ab629aa048a6c613e639d36e7456b0b229241"

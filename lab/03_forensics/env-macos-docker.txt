@@ -3,7 +3,6 @@ macOS and Proxmox captures; the output-*.txt files are not.
 
 captured-by : capture.sh
 capture host: macos-docker
-container id: 4d623a4da0b7
 kernel      : Linux 6.12.76-linuxkit aarch64
 base image  : debian:bookworm-slim
 base digest : sha256:abd67ffcfa541b485a3dff59865ab629aa048a6c613e639d36e7456b0b229241
