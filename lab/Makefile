@@ -21,8 +21,13 @@ image:
 	docker build -t $(IMAGE) 00_environment
 
 ifeq ($(RUNNER),docker)
+# Numeric uid so Linux bind-mounts are owned by the invoking user, not root.
+# Docker Desktop on macOS remaps this anyway; on the Proxmox guest it is the
+# difference between a recapture that cobol can rsync and one that cannot.
+UID_GID := $(shell id -u):$(shell id -g)
 forensics: image
-	docker run --rm -v "$(CURDIR):/lab" -w /lab -e CAPTURE_HOST=$(CAPTURE_HOST) \
+	docker run --rm --user $(UID_GID) -v "$(CURDIR):/lab" -w /lab \
+		-e CAPTURE_HOST=$(CAPTURE_HOST) \
 		$(IMAGE) sh /lab/00_environment/capture.sh
 else
 forensics:
