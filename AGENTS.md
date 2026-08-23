@@ -64,6 +64,19 @@ Docker is the canonical runner so macOS and Proxmox produce identical
 - Every figure in a write-up cites a captured artifact and is guarded by
   `make verify`.
 
+## Branching — never merge `lab/*` into `main`
+
+`main` is the instructor's tree. `lab/foundation` is ours. Merging them is a
+hard no: it mixes submitted coursework with the forensics and destroys the
+evidence.
+
+Work stays on `lab/foundation`. A GitHub Action fails any PR or push that
+puts `lab/` onto `main`. Enable the local hook once per clone:
+
+```sh
+git config core.hooksPath .githooks
+```
+
 ## Coordination
 
 A parallel session owns the Obsidian vault and folds our evidence into its

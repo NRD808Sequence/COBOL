@@ -1,0 +1,31 @@
+# main is instructor coursework. lab/ lives only on lab/* branches.
+name: block-lab-on-main
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  reject-lab-tree:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail if lab/ is on main
+        run: |
+          if [ -d lab ]; then
+            echo "lab/ must never land on main. Work stays on lab/foundation."
+            exit 1
+          fi
+          echo "ok: no lab/ tree on this ref"
+      - name: Fail PRs whose head is a lab/ branch
+        if: github.event_name == 'pull_request'
+        run: |
+          head="${{ github.head_ref }}"
+          case "$head" in
+            lab|lab/*)
+              echo "REFUSE: PR $head -> main. Merge lab work into lab/foundation only."
+              exit 1
+              ;;
+          esac

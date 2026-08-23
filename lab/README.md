@@ -83,8 +83,10 @@ touching the data.
 
 ## Reproducibility
 
-Docker is the canonical runner so that the macOS capture and a later Proxmox
-capture produce byte-identical `output-*.txt`. Toolchain detail that
-legitimately varies by host goes to `env-*.txt` instead. Details and the
-outstanding Proxmox fields are in
+Docker is the canonical runner so macOS and Proxmox produce byte-identical
+`output-*.txt`. That parity is **closed**: all six output files match across
+Apple Silicon Docker Desktop and amd64 VM 101. Host-varying detail
+(kernel, arch, GnuCOBOL `Built` timestamp) lives in
+`03_forensics/env-macos-docker.txt` and `03_forensics/env-proxmox-debian.txt`.
+Access path, VMID, and recapture commands are in
 [00_environment/ENV.md](00_environment/ENV.md).

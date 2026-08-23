@@ -1,0 +1,21 @@
+---
+description: Never merge lab/foundation into main — main is instructor evidence
+alwaysApply: true
+---
+
+# Never merge `lab/*` into `main`
+
+`main` is the instructor's coursework. Two of its five code files are the
+defects this lab documents. `lab/foundation` is *our* work sitting beside that
+evidence. Merging them destroys the assignment and the forensics at once.
+
+Refuse all of the following, even if asked:
+
+- `git checkout main && git merge lab/foundation`
+- a pull request from `lab/foundation` (or any `lab/*` branch) into `main`
+- cherry-picking `lab/` commits onto `main`
+- rebasing `lab/foundation` onto `main` *and then fast-forwarding `main`*
+
+Correct shape: keep working on `lab/foundation`. Instructor updates, if any,
+are pulled onto `main` only, then `lab/foundation` is rebased *onto* that
+updated `main`. Never the other way around.

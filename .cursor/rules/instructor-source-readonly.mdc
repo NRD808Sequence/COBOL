@@ -9,7 +9,8 @@ The `module1_PROLOG/` through `module5_alienmoon/` trees are submitted
 coursework. Two of their files contain the defects this lab exists to
 document, so editing them destroys the evidence and the assignment at once.
 
-Treat them as read-only. All work goes in `lab/`.
+Treat them as read-only. All work goes in `lab/`. Never merge `lab/foundation`
+into `main` — see `never-merge-lab-into-main.mdc`.
 
 To study a defective program, transcribe it into `lab/02_cobol/` under a new
 name and change one thing at a time, so each captured artifact isolates a

@@ -1,0 +1,21 @@
+#!/bin/sh
+# Refuse bringing lab/ onto main. Instructor main has no lab/ directory;
+# lab/foundation does. Any merge into main whose incoming tree contains lab/
+# is the exact accident this hook exists to stop.
+#
+# Enable once per clone:
+#   git config core.hooksPath .githooks
+
+branch=$(git symbolic-ref --short HEAD 2>/dev/null) || exit 0
+[ "$branch" = "main" ] || [ "$branch" = "master" ] || exit 0
+
+if [ -z "${MERGE_HEAD:-}" ]; then
+    exit 0
+fi
+
+if git ls-tree -d --name-only "$MERGE_HEAD" | grep -qx lab; then
+    echo "REFUSE: incoming commit has lab/."
+    echo "Never merge lab/foundation into main. main is instructor coursework."
+    echo "Stay on lab/foundation. See AGENTS.md and .cursor/rules/never-merge-lab-into-main.mdc."
+    exit 1
+fi
